@@ -1,0 +1,72 @@
+name: 'Static Pkgsite'
+description: 'Generate static Go package documentation using pkgsite and deploy to GitHub Pages'
+
+inputs:
+  path:
+    description: 'Path to the Go module (or space-separated list of paths) to document. Defaults to the current directory.'
+    required: false
+    default: '.'
+  go-version:
+    description: 'Go version to use for building pkgsite and the documented module.'
+    required: false
+    default: 'stable'
+  pkgsite-ref:
+    description: 'Git ref (branch, tag, commit) of wow-look-at-my/static-pkgsite to build.'
+    required: false
+    default: 'master'
+  out:
+    description: 'Output directory for the generated static site.'
+    required: false
+    default: '_site'
+  proxy:
+    description: 'Fetch from GOPROXY if modules are not available locally.'
+    required: false
+    default: 'false'
+  cache:
+    description: 'Fetch modules from the local module cache.'
+    required: false
+    default: 'false'
+  list:
+    description: 'Include all modules in the build list for each path.'
+    required: false
+    default: 'true'
+
+outputs:
+  path:
+    description: 'Path to the generated static site directory.'
+    value: ${{ inputs.out }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go-version }}
+
+    - name: Build pkgsite
+      shell: bash
+      run: |
+        GOBIN="$(pwd)/.pkgsite-bin" go install github.com/wow-look-at-my/static-pkgsite/cmd/pkgsite@${{ inputs.pkgsite-ref }}
+        echo "$(pwd)/.pkgsite-bin" >> "$GITHUB_PATH"
+
+    - name: Generate static site
+      shell: bash
+      run: |
+        args=()
+        args+=("-out" "${{ inputs.out }}")
+        if [ "${{ inputs.proxy }}" = "true" ]; then
+          args+=("-proxy")
+        fi
+        if [ "${{ inputs.cache }}" = "true" ]; then
+          args+=("-cache")
+        fi
+        if [ "${{ inputs.list }}" = "false" ]; then
+          args+=("-list=false")
+        fi
+        pkgsite "${args[@]}" ${{ inputs.path }}
+
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ${{ inputs.out }}
