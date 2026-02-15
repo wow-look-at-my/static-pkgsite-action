@@ -75,9 +75,6 @@ jobs:
 | `go-version` | Go version to use | `stable` |
 | `pkgsite-ref` | Git ref of `wow-look-at-my/static-pkgsite` to build | `master` |
 | `out` | Output directory for the generated static site | `_site` |
-| `proxy` | Fetch from GOPROXY if modules are not available locally | `false` |
-| `cache` | Fetch modules from the local module cache | `false` |
-| `list` | Include all modules in the build list for each path | `true` |
 
 ## Outputs
 

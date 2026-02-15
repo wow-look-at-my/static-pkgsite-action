@@ -18,21 +18,6 @@ on:
         required: false
         type: string
         default: 'master'
-      proxy:
-        description: 'Fetch from GOPROXY if modules are not available locally.'
-        required: false
-        type: boolean
-        default: false
-      cache:
-        description: 'Fetch modules from the local module cache.'
-        required: false
-        type: boolean
-        default: false
-      list:
-        description: 'Include all modules in the build list for each path.'
-        required: false
-        type: boolean
-        default: true
 
 permissions:
   pages: write
@@ -55,9 +40,6 @@ jobs:
           path: ${{ inputs.path }}
           go-version: ${{ inputs.go-version }}
           pkgsite-ref: ${{ inputs.pkgsite-ref }}
-          proxy: ${{ inputs.proxy }}
-          cache: ${{ inputs.cache }}
-          list: ${{ inputs.list }}
 
   deploy:
     needs: build

@@ -18,18 +18,6 @@ inputs:
     description: 'Output directory for the generated static site.'
     required: false
     default: '_site'
-  proxy:
-    description: 'Fetch from GOPROXY if modules are not available locally.'
-    required: false
-    default: 'false'
-  cache:
-    description: 'Fetch modules from the local module cache.'
-    required: false
-    default: 'false'
-  list:
-    description: 'Include all modules in the build list for each path.'
-    required: false
-    default: 'true'
 
 outputs:
   path:
@@ -52,19 +40,7 @@ runs:
 
     - name: Generate static site
       shell: bash
-      run: |
-        args=()
-        args+=("-out" "${{ inputs.out }}")
-        if [ "${{ inputs.proxy }}" = "true" ]; then
-          args+=("-proxy")
-        fi
-        if [ "${{ inputs.cache }}" = "true" ]; then
-          args+=("-cache")
-        fi
-        if [ "${{ inputs.list }}" = "false" ]; then
-          args+=("-list=false")
-        fi
-        pkgsite "${args[@]}" ${{ inputs.path }}
+      run: pkgsite -out "${{ inputs.out }}" ${{ inputs.path }}
 
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
