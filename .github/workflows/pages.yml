@@ -1,0 +1,53 @@
+name: Deploy Go Package Docs to GitHub Pages
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: 'Path to the Go module (or space-separated list of paths) to document.'
+        required: false
+        type: string
+        default: '.'
+      go-version:
+        description: 'Go version to use.'
+        required: false
+        type: string
+        default: 'stable'
+      pkgsite-ref:
+        description: 'Git ref of wow-look-at-my/static-pkgsite to build.'
+        required: false
+        type: string
+        default: 'master'
+
+permissions:
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate static pkgsite
+        uses: wow-look-at-my/static-pkgsite-action@master
+        with:
+          path: ${{ inputs.path }}
+          go-version: ${{ inputs.go-version }}
+          pkgsite-ref: ${{ inputs.pkgsite-ref }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
