@@ -75,6 +75,7 @@ jobs:
 | `go-version` | Go version to use | `stable` |
 | `pkgsite-ref` | Git ref of `wow-look-at-my/static-pkgsite` to build | `master` |
 | `out` | Output directory for the generated static site | `_site` |
+| `base-path` | Base URL path prefix for the generated site (see below) | auto-detected |
 
 ## Outputs
 
@@ -82,11 +83,22 @@ jobs:
 |---|---|
 | `path` | Path to the generated static site directory |
 
+## Base path handling
+
+When deploying to GitHub Pages, project repositories are served under a subpath
+(e.g., `https://user.github.io/repo-name/`). The action automatically detects the
+correct base path from the repository name so that all CSS, JS, image, and
+internal link references work correctly.
+
+- **Project pages** (`user/repo-name`): base path is auto-set to `/repo-name/`
+- **User/org pages** (`user/user.github.io`): base path is auto-set to `/`
+- **Custom**: pass `base-path: /custom/prefix/` to override auto-detection
+
 ## How it works
 
 1. Sets up Go
 2. Builds the `pkgsite` binary from [wow-look-at-my/static-pkgsite](https://github.com/wow-look-at-my/static-pkgsite)
-3. Runs `pkgsite -out <dir> <paths>` to generate static HTML documentation
+3. Runs `pkgsite -base-path <path> -out <dir> <paths>` to generate static HTML documentation with correct URL paths
 4. Uploads the output as a GitHub Pages artifact via `actions/upload-pages-artifact`
 
 The reusable workflow additionally handles the `actions/deploy-pages` step.

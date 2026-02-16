@@ -18,6 +18,13 @@ inputs:
     description: 'Output directory for the generated static site.'
     required: false
     default: '_site'
+  base-path:
+    description: >-
+      Base URL path prefix for the generated site. For GitHub Pages project
+      sites this should be /<repo-name>/. Leave empty to auto-detect from the
+      repository name (recommended).
+    required: false
+    default: ''
 
 outputs:
   path:
@@ -40,7 +47,22 @@ runs:
 
     - name: Generate static site
       shell: bash
-      run: pkgsite -out "${{ inputs.out }}" ${{ inputs.path }}
+      env:
+        INPUT_BASE_PATH: ${{ inputs.base-path }}
+      run: |
+        BASE_PATH="$INPUT_BASE_PATH"
+        if [ -z "$BASE_PATH" ]; then
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          REPO_OWNER="${GITHUB_REPOSITORY_OWNER}"
+          # User/org pages (repo named <owner>.github.io) are served from /
+          if [ "$REPO_NAME" = "${REPO_OWNER}.github.io" ]; then
+            BASE_PATH="/"
+          else
+            BASE_PATH="/${REPO_NAME}/"
+          fi
+        fi
+        echo "Using base path: $BASE_PATH"
+        pkgsite -base-path "$BASE_PATH" -out "${{ inputs.out }}" ${{ inputs.path }}
 
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
