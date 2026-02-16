@@ -18,11 +18,6 @@ on:
         required: false
         type: string
         default: 'master'
-      base-path:
-        description: 'Base URL path prefix. Leave empty to auto-detect from the repository name.'
-        required: false
-        type: string
-        default: ''
 
 permissions:
   pages: write
@@ -45,7 +40,6 @@ jobs:
           path: ${{ inputs.path }}
           go-version: ${{ inputs.go-version }}
           pkgsite-ref: ${{ inputs.pkgsite-ref }}
-          base-path: ${{ inputs.base-path }}
 
   deploy:
     needs: build
