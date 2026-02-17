@@ -89,4 +89,6 @@ jobs:
 3. Runs `pkgsite -out <dir> <paths>` to generate static HTML documentation
 4. Uploads the output as a GitHub Pages artifact via `actions/upload-pages-artifact`
 
+The generated site uses relative paths for all links and assets, so it works when served from any URL prefix — including GitHub Pages project subpaths like `https://user.github.io/repo-name/`.
+
 The reusable workflow additionally handles the `actions/deploy-pages` step.
